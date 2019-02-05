@@ -5,13 +5,16 @@
  * 
  * È un utility per Wordpress che permette di creare una lista di preferiti e salvarla come cookie di sessione.
  * 
- * @versione                        1.0
- * @data ultimo aggiornamento       24 Gennaio 2019
+ * @versione                        1.0.1
+ * @data ultimo aggiornamento       05 Febbraio 2019
  * @data prima versione             20 Gennaio 2019
  * 
  * @autore                          Giorgio Suadoni
  * 
  */
+
+// Disabilita le chiamate dirette a questa classe.
+if (!defined('ABSPATH')) die;
 
 class ManageFavoriteCookie {
 	/**
