@@ -13,7 +13,7 @@ Crediti
 |Tipo|Descrizione|
 |:---|---:|
 |@autore|Giorgio Suadoni|
-|@versione|1.0|
+|@versione|1.0.1|
 |@data ultimo aggiornamento|05 Febbraio 2019|
 |@data prima versione|20 Gennaio 2019|
 
