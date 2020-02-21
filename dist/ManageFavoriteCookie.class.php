@@ -5,8 +5,8 @@
  * 
  * È un utility per Wordpress che permette di creare una lista di preferiti e salvarla come cookie di sessione.
  * 
- * @versione                        1.0.1
- * @data ultimo aggiornamento       05 Febbraio 2019
+ * @versione                        1.0.2
+ * @data ultimo aggiornamento       21 Febbraio 2020
  * @data prima versione             20 Gennaio 2019
  * 
  * @autore                          Giorgio Suadoni
@@ -88,8 +88,19 @@ class ManageFavoriteCookie {
 	private $js_config = array();
 	
 	/**
+	 * Lingua predefinita impostata da WPML.
+	 *
+	 * @dalla v1.0.2
+	 *
+	 * @accesso privato
+	 * @var     string
+	 */
+	private $wpml_default_language = '';
+	
+	/**
 	 * Costruttore.
 	 *
+	 * @aggiornamento v1.0.2 Integrazione con il plugin WPML.
 	 * @dalla v1.0
 	 *
 	 * @accesso pubblico
@@ -102,6 +113,16 @@ class ManageFavoriteCookie {
 		
 		$path_arr = explode('/', __DIR__);
 		$this->url_class_dir = home_url(implode('/', array_slice($path_arr, array_search('wp-content', $path_arr))));
+		
+		// Controllo se il plugin WPML è attivo
+		if (function_exists('icl_object_id')) {
+			global $sitepress;
+		
+			$this->wpml_default_language = $sitepress->get_default_language();
+			
+			if ($this->wpml_default_language)
+				$this->url_class_dir = $sitepress->convert_url($this->url_class_dir, $this->wpml_default_language);
+		}
 		
 		$this->cookie_name = sanitize_key($cookie_name);
 		
@@ -198,13 +219,16 @@ class ManageFavoriteCookie {
 	public function __ajax_add_or_remove_favorite() {
 		$error = false;
 		
+		//$this->wpml_default_language
+		$item_id = $_POST['item_id'];
+		
 		if (!wp_doing_ajax())
 			$error = false;
 		
 		if (!wp_verify_nonce($_POST['nonce'], 'ajaxnonce'))
 			$error = true;
 		
-		if (empty($_POST['item_id']) || !$_POST['item_id'])
+		if (empty($item_id) || !$item_id)
 			$error = true;
 		
 		if ($error) {
@@ -215,15 +239,15 @@ class ManageFavoriteCookie {
 			wp_send_json($ajax_output);
 		}
 		
-		if ($this->_exist($_POST['item_id'])) {
-			$this->_remove($_POST['item_id']);
+		if ($this->_exist($item_id)) {
+			$this->_remove($item_id);
 			
 			$ajax_output = array(
 				'remove' => true,
 				'html' => $this->output_html['remove'],
 			);
 		} else {
-			$this->_add($_POST['item_id']);
+			$this->_add($item_id);
 			
 			$ajax_output = array(
 				'remove' => false,
@@ -238,7 +262,7 @@ class ManageFavoriteCookie {
 		 *
 		 * @parametro integer $item_id Obbligatorio. L'ID dell'item.
 		 */
-		do_action('mfc_custom_ajax', $_POST['item_id']);
+		do_action('mfc_custom_ajax', $item_id);
 		
 		wp_send_json($ajax_output);
 	}
